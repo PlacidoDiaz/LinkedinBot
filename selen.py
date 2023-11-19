@@ -20,6 +20,9 @@ pas = sys.argv[2]
 # Crear una lista vacía para almacenar los enlaces
 enlaces = []
 
+# Crear una lista vacía para almacenar los emails
+emails = []
+
 # Abrir el archivo 'links.txt' en modo de lectura
 with open('links.txt', 'r') as archivo:
     # Leer cada línea del archivo
@@ -56,27 +59,33 @@ except Exception as e:
 
 time.sleep(2)
 
-driver.get(enlaces[0])
-
-try:   
-
-    button = driver.find_element(By.XPATH, '//*[@id="top-card-text-details-contact-info"]')
-    button.click()
-    time.sleep(10)
+#driver.get(enlaces[0])
+for enlace in enlaces:
+    driver.get(enlace)
+    try:   
+        time.sleep(2)
+        button = driver.find_element(By.XPATH, '//*[@id="top-card-text-details-contact-info"]')
+        button.click()
+        time.sleep(10)
+        
+        # Espera a que el modal sea visible
+        WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, 'div[data-test-modal]'))
+        )
+        
+        enlace_email = driver.find_element(By.CSS_SELECTOR, 'a[href^="mailto:"]')
+        href_email = enlace_email.get_attribute('href')
+        email = href_email.replace("mailto:", "")
+                
+        emails.append(email)
+        
+    except Exception as e:
+        print("Error ", e)
     
-    # Espera a que el modal sea visible
-    WebDriverWait(driver, 10).until(
-        EC.visibility_of_element_located((By.CSS_SELECTOR, 'div[data-test-modal]'))
-    )
+# Abrir un archivo de texto para escritura
+with open("correos.txt", "w") as archivo:
+    # Escribir cada correo en una línea separada
+    for email in emails:
+        archivo.write(email + "\n")
     
-    enlace_email = driver.find_element(By.CSS_SELECTOR, 'a[href^="mailto:"]')
-    href_email = enlace_email.get_attribute('href')
-    email = href_email.replace("mailto:", "")
-    
-    print(email)
-    
-    
-except Exception as e:
-    print("Error ", e)
-    
-time.sleep(500)
+driver.close()
