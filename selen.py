@@ -3,9 +3,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import time
+import sys
 
-correo = "correo"
-pas = "contraseña"
+if len(sys.argv) != 3:
+    print("Uso: python selen.py <correo> <contraseña>")
+    sys.exit(1)
+
+correo = sys.argv[1]
+pas = sys.argv[2]
 
 
 # Configuración del WebDriver
@@ -34,8 +39,6 @@ try:
     
 except Exception as e:
     print("Error ", e)
-
-driver.get("https://www.linkedin.com")
 
 
 time.sleep(500)
