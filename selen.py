@@ -4,6 +4,10 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import sys
+import csv
+import pandas as pd
+from selenium.webdriver.support.ui import WebDriverWait 
+from selenium.webdriver.support import expected_conditions as EC
 
 if len(sys.argv) != 3:
     print("Uso: python selen.py <correo> <contraseña>")
@@ -12,6 +16,16 @@ if len(sys.argv) != 3:
 correo = sys.argv[1]
 pas = sys.argv[2]
 
+
+# Crear una lista vacía para almacenar los enlaces
+enlaces = []
+
+# Abrir el archivo 'links.txt' en modo de lectura
+with open('links.txt', 'r') as archivo:
+    # Leer cada línea del archivo
+    for linea in archivo:
+        # Añadir la línea (enlace) a la lista, eliminando espacios en blanco y saltos de línea
+        enlaces.append(linea.strip())
 
 # Configuración del WebDriver
 service = Service(ChromeDriverManager().install())
@@ -40,5 +54,29 @@ try:
 except Exception as e:
     print("Error ", e)
 
+time.sleep(2)
 
+driver.get(enlaces[0])
+
+try:   
+
+    button = driver.find_element(By.XPATH, '//*[@id="top-card-text-details-contact-info"]')
+    button.click()
+    time.sleep(10)
+    
+    # Espera a que el modal sea visible
+    WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.CSS_SELECTOR, 'div[data-test-modal]'))
+    )
+    
+    enlace_email = driver.find_element(By.CSS_SELECTOR, 'a[href^="mailto:"]')
+    href_email = enlace_email.get_attribute('href')
+    email = href_email.replace("mailto:", "")
+    
+    print(email)
+    
+    
+except Exception as e:
+    print("Error ", e)
+    
 time.sleep(500)
